@@ -1,5 +1,5 @@
 """
-FastAPI приложение для AI агента с MCP интеграцией
+FastAPI application for AI agent with MCP integration
 """
 import logging
 from fastapi import FastAPI
@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.agent.endpoints import router as agent_router
 
-# Настройка логирования
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -19,10 +19,10 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Создание FastAPI приложения
+# Create FastAPI application
 app = FastAPI(
     title="AI Agent API",
-    description="API для работы с AI агентом с MCP интеграцией для управления продуктами",
+    description="API for working with AI agent with MCP integration for product management",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -37,14 +37,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Подключение роутеров
+# Include routers
 app.include_router(agent_router)
 
 
 @app.get("/")
 async def root():
     """
-    Корневой endpoint с информацией об API
+    Root endpoint with API information
     """
     logger.info("Root endpoint accessed")
     return {
@@ -60,15 +60,15 @@ async def root():
 
 @app.on_event("startup")
 async def startup_event():
-    """Событие при запуске приложения"""
-    logger.info("🚀 AI Agent API запущен")
-    logger.info("📚 Документация доступна по адресу: /docs")
+    """Event on application startup"""
+    logger.info("🚀 AI Agent API started")
+    logger.info("📚 Documentation available at: /docs")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Событие при остановке приложения"""
-    logger.info("🛑 AI Agent API остановлен")
+    """Event on application shutdown"""
+    logger.info("🛑 AI Agent API stopped")
 
 
 if __name__ == "__main__":

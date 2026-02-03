@@ -1,5 +1,5 @@
 """
-API endpoints для работы с AI агентом
+API endpoints for working with AI agent
 """
 import logging
 from fastapi import APIRouter, HTTPException
@@ -8,34 +8,34 @@ from typing import Optional
 
 from app.service.Agent import run_multi_server_agent
 
-# Настройка логирования
+# Setup logging
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
 
 
 class QueryRequest(BaseModel):
-    """Модель запроса к агенту"""
-    query: str = Field(..., description="Запрос пользователя к агенту", min_length=1)
+    """Agent query request model"""
+    query: str = Field(..., description="User query to the agent", min_length=1)
     
     class Config:
         json_schema_extra = {
             "example": {
-                "query": "Покажи все продукты"
+                "query": "Show all products"
             }
         }
 
 
 class QueryResponse(BaseModel):
-    """Модель ответа агента"""
-    result: str = Field(..., description="Результат выполнения запроса")
-    status: str = Field(default="success", description="Статус выполнения")
-    error: Optional[str] = Field(None, description="Описание ошибки, если есть")
+    """Agent response model"""
+    result: str = Field(..., description="Query execution result")
+    status: str = Field(default="success", description="Execution status")
+    error: Optional[str] = Field(None, description="Error description, if any")
     
     class Config:
         json_schema_extra = {
             "example": {
-                "result": "Вот список всех продуктов...",
+                "result": "Here is the list of all products...",
                 "status": "success",
                 "error": None
             }
@@ -45,32 +45,32 @@ class QueryResponse(BaseModel):
 @router.post("/query", response_model=QueryResponse)
 async def query_agent(request: QueryRequest) -> QueryResponse:
     """
-    Отправить запрос AI агенту
+    Send query to AI agent
     
     Args:
-        request: Запрос с текстом для агента
+        request: Request with text for the agent
         
     Returns:
-        QueryResponse: Ответ агента с результатом
+        QueryResponse: Agent response with result
         
     Raises:
-        HTTPException: При ошибке обработки запроса
+        HTTPException: On request processing error
         
     Examples:
         ```json
         POST /api/v1/agent/query
         {
-            "query": "Покажи все продукты в категории Электроника"
+            "query": "Show all products in Electronics category"
         }
         ```
     """
     try:
-        logger.info(f"Получен запрос к агенту: {request.query[:100]}...")
+        logger.info(f"Received agent query: {request.query[:100]}...")
         
-        # Запускаем агента
+        # Run agent
         result = await run_multi_server_agent(request.query)
         
-        logger.info("Запрос успешно обработан")
+        logger.info("Query processed successfully")
         
         return QueryResponse(
             result=result,
@@ -78,26 +78,26 @@ async def query_agent(request: QueryRequest) -> QueryResponse:
         )
         
     except ValueError as e:
-        logger.error(f"Ошибка валидации: {str(e)}")
+        logger.error(f"Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
         
     except Exception as e:
-        logger.error(f"Ошибка при обработке запроса: {str(e)}", exc_info=True)
+        logger.error(f"Error processing query: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Ошибка при обработке запроса: {str(e)}"
+            detail=f"Error processing query: {str(e)}"
         )
 
 
 @router.get("/health")
 async def health_check() -> dict:
     """
-    Проверка работоспособности API
+    Check API health status
     
     Returns:
-        dict: Статус сервиса
+        dict: Service status
     """
-    logger.debug("Health check запрос")
+    logger.debug("Health check request")
     return {
         "status": "healthy",
         "service": "AI Agent API",

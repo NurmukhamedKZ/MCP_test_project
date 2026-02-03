@@ -1,80 +1,6 @@
-# AI Agent with MCP Integration
-
-![Python](https://img.shields.io/badge/python-3.13-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-
 Тестовое задание: AI Engineer разработчик - **AI-агент с MCP интеграцией для управления продуктами и заказами**
 
-## 📋 Описание
-
-Проект представляет собой **AI-агента** с интеграцией **MCP (Model Context Protocol)** серверов для управления продуктами и заказами. Агент использует LangChain/LangGraph для обработки естественно-языковых запросов и предоставляет REST API через FastAPI.
-
-### Ключевые возможности:
-
-- 🤖 **AI Agent** на базе LangChain с поддержкой tools
-- 🔌 **2 MCP сервера** (Products & Orders) через stdio
-- 📦 **SQLite** для персистентного хранения данных
-- 🧮 **Кастомные tools** (калькулятор)
-- 🐳 **Docker Compose** для простого запуска
-- ✅ **Тесты** (pytest)
-- 📝 **Логирование** во всех модулях
-- 🎭 **Mock LLM** для тестирования без API ключа
-
----
-
-## 🏗️ Архитектура
-
-```
-┌─────────────────────────────────────────────────┐
-│             Docker Container                    │
-│  ┌───────────────────────────────────────────┐ │
-│  │         FastAPI App                       │ │
-│  │  POST /api/v1/agent/query                │ │
-│  │  {"query": "Покажи продукты"}            │ │
-│  └─────────────────┬─────────────────────────┘ │
-│                    │                            │
-│                    ▼                            │
-│  ┌─────────────────────────────────────────┐   │
-│  │        LangGraph Agent                  │   │
-│  │  - Анализирует запрос                  │   │
-│  │  - Выбирает tools                      │   │
-│  │  - Вызывает tools                      │   │
-│  │  - Формирует ответ                     │   │
-│  └───┬──────────────────────┬──────────────┘   │
-│      │                      │                   │
-│      ▼                      ▼                   │
-│  ┌──────────┐   ┌──────────────────────────┐   │
-│  │ Custom   │   │  MCP Servers (stdio)     │   │
-│  │ Tools    │   │  ┌────────────────────┐  │   │
-│  │ (calc)   │   │  │ Products Manager   │  │   │
-│  │          │   │  │ - list_products    │  │   │
-│  │          │   │  │ - get_product      │  │   │
-│  │          │   │  │ - add_product      │  │   │
-│  │          │   │  │ - get_statistics   │  │   │
-│  │          │   │  └────────────────────┘  │   │
-│  │          │   │  ┌────────────────────┐  │   │
-│  │          │   │  │ Orders Manager     │  │   │
-│  │          │   │  │ - create_order     │  │   │
-│  │          │   │  │ - list_orders      │  │   │
-│  │          │   │  │ - update_status    │  │   │
-│  │          │   │  │ - get_statistics   │  │   │
-│  │          │   │  └────────────────────┘  │   │
-│  └──────────┘   └──────────────────────────┘   │
-│                            │                     │
-│                            ▼                     │
-│                   ┌─────────────────┐            │
-│                   │  SQLite DB      │            │
-│                   │  data/products.db│           │
-│                   └─────────────────┘            │
-└─────────────────────────────────────────────────┘
-```
-
----
-
-## 🚀 Быстрый старт
-
-### Вариант 1: Docker Compose (рекомендуется)
+### Docker Compose
 
 ```bash
 # 1. Клонируйте репозиторий
@@ -93,7 +19,7 @@ make build && make up
 
 Приложение будет доступно на: **http://localhost:8000**
 
-### Вариант 2: Локально
+### Локально
 
 ```bash
 # 1. Установите зависимости
@@ -150,28 +76,6 @@ curl http://localhost:8000/api/v1/agent/health
 ## 💬 Примеры запросов
 
 ### Работа с продуктами:
-
-```bash
-# Показать все продукты
-curl -X POST "http://localhost:8000/api/v1/agent/query" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Покажи все продукты"}'
-
-# Добавить новый продукт
-curl -X POST "http://localhost:8000/api/v1/agent/query" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Добавь новый продукт: Мышка, цена 1500, категория Электроника, в наличии"}'
-
-# Найти продукт по ID
-curl -X POST "http://localhost:8000/api/v1/agent/query" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Найди продукт с ID 1"}'
-
-# Показать статистику по продуктам
-curl -X POST "http://localhost:8000/api/v1/agent/query" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Покажи статистику по продуктам"}'
-```
 
 ### Работа с заказами (БОНУС):
 

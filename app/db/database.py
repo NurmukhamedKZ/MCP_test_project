@@ -1,5 +1,5 @@
 """
-SQLite database manager для работы с продуктами
+SQLite database manager for working with products
 """
 import sqlite3
 import os
@@ -8,16 +8,16 @@ from contextlib import contextmanager
 from typing import Generator
 from pathlib import Path
 
-# Настройка логирования
+# Setup logging
 logger = logging.getLogger(__name__)
 
 
 class Database:
     """
-    SQLite database manager для работы с продуктами
+    SQLite database manager for working with products
     
     Attributes:
-        db_path (str): Путь к файлу базы данных
+        db_path (str): Path to database file
         
     Examples:
         >>> db = Database("data/products.db")
@@ -28,27 +28,27 @@ class Database:
     
     def __init__(self, db_path: str):
         """
-        Инициализация базы данных
+        Initialize database
         
         Args:
-            db_path: Путь к файлу SQLite базы данных
+            db_path: Path to SQLite database file
         """
         self.db_path = db_path
-        logger.info(f"Инициализация базы данных: {db_path}")
+        logger.info(f"Initializing database: {db_path}")
         
-        # Создаем директорию для базы данных, если её нет
+        # Create directory for database if it doesn't exist
         db_dir = os.path.dirname(self.db_path)
         if db_dir and not os.path.exists(db_dir):
             os.makedirs(db_dir, exist_ok=True)
-            logger.info(f"Создана директория для БД: {db_dir}")
+            logger.info(f"Created directory for DB: {db_dir}")
         
         self._init_db()
     
     def _init_db(self) -> None:
         """
-        Инициализация таблиц базы данных
+        Initialize database tables
         
-        Создает таблицу products если она не существует
+        Creates products table if it doesn't exist
         """
         try:
             with self.get_connection() as conn:
@@ -63,18 +63,18 @@ class Database:
                     )
                 """)
                 conn.commit()
-                logger.info("Таблица products успешно инициализирована")
+                logger.info("Products table initialized successfully")
         except Exception as e:
-            logger.error(f"Ошибка при инициализации БД: {str(e)}", exc_info=True)
+            logger.error(f"Error initializing DB: {str(e)}", exc_info=True)
             raise
     
     @contextmanager
     def get_connection(self) -> Generator[sqlite3.Connection, None, None]:
         """
-        Context manager для работы с подключением к БД
+        Context manager for working with DB connection
         
         Yields:
-            sqlite3.Connection: Подключение к базе данных
+            sqlite3.Connection: Database connection
             
         Examples:
             >>> with db.get_connection() as conn:
@@ -86,7 +86,7 @@ class Database:
         try:
             yield conn
         except Exception as e:
-            logger.error(f"Ошибка при работе с БД: {str(e)}")
+            logger.error(f"Error working with DB: {str(e)}")
             raise
         finally:
             conn.close()

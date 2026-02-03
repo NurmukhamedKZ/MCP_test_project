@@ -1,1 +1,1 @@
-"""Agent API модуль"""
+"""Agent API module"""

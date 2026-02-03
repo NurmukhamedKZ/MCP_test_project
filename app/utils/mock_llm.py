@@ -1,5 +1,5 @@
 """
-Mock LLM для тестирования без реального API ключа
+Mock LLM for testing without real API key
 """
 import logging
 from typing import Any, List, Optional
@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 class MockChatModel(BaseChatModel):
     """
-    Mock реализация ChatModel для тестирования без реального API
+    Mock ChatModel implementation for testing without real API
     
-    Использует простые правила для генерации ответов на основе запроса.
+    Uses simple rules to generate responses based on query.
     """
     
     model_name: str = "mock-model"
@@ -28,51 +28,51 @@ class MockChatModel(BaseChatModel):
         **kwargs: Any,
     ) -> ChatResult:
         """
-        Генерация мок-ответа
+        Generate mock response
         
         Args:
-            messages: Список сообщений
-            stop: Токены остановки
-            run_manager: Менеджер callback'ов
+            messages: List of messages
+            stop: Stop tokens
+            run_manager: Callback manager
             
         Returns:
-            ChatResult: Результат с мок-ответом
+            ChatResult: Result with mock response
         """
         last_message = messages[-1].content.lower() if messages else ""
         
-        logger.info(f"MockLLM получил запрос: {last_message[:100]}")
+        logger.info(f"MockLLM received query: {last_message[:100]}")
         
-        # Простая логика для генерации ответов
-        if "продукт" in last_message or "товар" in last_message:
-            if "все" in last_message or "список" in last_message:
-                response = "Я использую инструмент get_all_products для получения списка всех продуктов."
-            elif "добав" in last_message:
-                response = "Я использую инструмент add_new_product для добавления нового продукта."
-            elif "найд" in last_message or "поиск" in last_message:
-                response = "Я использую инструмент get_product_by_id для поиска продукта."
+        # Simple logic for generating responses
+        if "product" in last_message or "item" in last_message:
+            if "all" in last_message or "list" in last_message:
+                response = "I'm using get_all_products tool to retrieve the list of all products."
+            elif "add" in last_message:
+                response = "I'm using add_new_product tool to add a new product."
+            elif "find" in last_message or "search" in last_message:
+                response = "I'm using get_product_by_id tool to search for product."
             else:
-                response = "Я помогу вам с продуктами. Используйте инструменты для работы с продуктами."
+                response = "I'll help you with products. Use tools to work with products."
         
-        elif "заказ" in last_message:
-            if "создать" in last_message or "сделать" in last_message:
-                response = "Я использую инструмент create_order для создания заказа."
-            elif "список" in last_message or "все" in last_message:
-                response = "Я использую инструмент list_orders для получения списка заказов."
-            elif "статус" in last_message:
-                response = "Я использую инструмент update_order_status для обновления статуса заказа."
+        elif "order" in last_message:
+            if "create" in last_message or "make" in last_message:
+                response = "I'm using create_order tool to create order."
+            elif "list" in last_message or "all" in last_message:
+                response = "I'm using list_orders tool to get list of orders."
+            elif "status" in last_message:
+                response = "I'm using update_order_status tool to update order status."
             else:
-                response = "Я помогу вам с заказами. Используйте инструменты для работы с заказами."
+                response = "I'll help you with orders. Use tools to work with orders."
         
-        elif "статистик" in last_message:
-            response = "Я использую инструмент get_statistics для получения статистики."
+        elif "statistic" in last_message:
+            response = "I'm using get_statistics tool to get statistics."
         
-        elif "calculate" in last_message or "считай" in last_message or "вычисл" in last_message:
-            response = "Я использую калькулятор для вычислений."
+        elif "calculate" in last_message or "compute" in last_message:
+            response = "I'm using calculator for calculations."
         
         else:
-            response = "Я - AI ассистент для управления продуктами и заказами. Чем могу помочь?"
+            response = "I'm an AI assistant for managing products and orders. How can I help?"
         
-        logger.info(f"MockLLM сгенерировал ответ: {response[:100]}")
+        logger.info(f"MockLLM generated response: {response[:100]}")
         
         message = AIMessage(content=response)
         generation = ChatGeneration(message=message)
@@ -81,37 +81,37 @@ class MockChatModel(BaseChatModel):
     
     @property
     def _llm_type(self) -> str:
-        """Тип LLM"""
+        """LLM type"""
         return "mock-chat-model"
     
     @property
     def _identifying_params(self) -> dict:
-        """Параметры для идентификации"""
+        """Identifying parameters"""
         return {"model_name": self.model_name}
 
 
 def get_llm(use_mock: bool = False) -> BaseChatModel:
     """
-    Фабрика для получения LLM модели
+    Factory to get LLM model
     
     Args:
-        use_mock: Использовать ли мок LLM вместо реального
+        use_mock: Whether to use mock LLM instead of real one
         
     Returns:
-        BaseChatModel: LLM модель (реальная или мок)
+        BaseChatModel: LLM model (real or mock)
         
     Examples:
-        >>> llm = get_llm(use_mock=True)  # Для тестов
-        >>> llm = get_llm(use_mock=False)  # Для продакшена
+        >>> llm = get_llm(use_mock=True)  # For tests
+        >>> llm = get_llm(use_mock=False)  # For production
     """
     import os
     from langchain_openai import ChatOpenAI
     
     if use_mock or not os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY") == "test-api-key":
-        logger.info("Использование Mock LLM")
+        logger.info("Using Mock LLM")
         return MockChatModel()
     else:
-        logger.info("Использование OpenAI LLM")
+        logger.info("Using OpenAI LLM")
         return ChatOpenAI(
             model="gpt-4o-mini",
             api_key=os.getenv("OPENAI_API_KEY"),
