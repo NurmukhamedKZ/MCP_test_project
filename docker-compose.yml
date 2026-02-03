@@ -1,0 +1,19 @@
+services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: test_task_app
+    ports:
+      - "8000:8000"
+    volumes:
+      # Монтируем код для разработки (hot reload)
+      - .:/app
+      # Сохраняем базу данных на хосте
+      - ./data:/app/app/db
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    restart: unless-stopped
+    command: uvicorn app.fastapi_main:app --host 0.0.0.0 --port 8000 --reload
