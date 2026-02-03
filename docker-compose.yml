@@ -9,10 +9,11 @@ services:
     volumes:
       # Монтируем код для разработки (hot reload)
       - .:/app
-      # Сохраняем базу данных на хосте
-      - ./data:/app/app/db
+      # Сохраняем только файл базы данных на хосте
+      - ./data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
     env_file:
       - .env
     restart: unless-stopped

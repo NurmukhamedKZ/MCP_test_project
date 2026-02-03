@@ -2,49 +2,24 @@ from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP
 import os
 import sys
-import sqlite3
 from pathlib import Path
-from contextlib import contextmanager
-from typing import Generator
 
+# Добавляем корневую директорию проекта в PYTHONPATH (для локального запуска)
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-class Database:
-    """Simple SQLite database manager"""
-    
-    def __init__(self, db_path: str):
-        self.db_path = db_path
-        
-        # Создаем директорию для базы данных, если её нет
-        db_dir = os.path.dirname(self.db_path)
-        if db_dir and not os.path.exists(db_dir):
-            os.makedirs(db_dir, exist_ok=True)
-        
-        self._init_db()
-    
-    def _init_db(self):
-        """Initialize database with products table"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS products (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    price REAL NOT NULL,
-                    category TEXT NOT NULL,
-                    in_stock INTEGER NOT NULL
-                )
-            """)
-            conn.commit()
-    
-    @contextmanager
-    def get_connection(self) -> Generator[sqlite3.Connection, None, None]:
-        """Context manager for database connections"""
-        conn = sqlite3.Connection(self.db_path)
-        conn.row_factory = sqlite3.Row  # Enable column access by name
-        try:
-            yield conn
-        finally:
-            conn.close()
+# Импортируем Database из app.db.database
+try:
+    from app.db.database import Database
+except ImportError:
+    # Если импорт не удался, добавляем путь явно
+    import importlib.util
+    db_module_path = project_root / "app" / "db" / "database.py"
+    spec = importlib.util.spec_from_file_location("database", db_module_path)
+    database_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(database_module)
+    Database = database_module.Database
 
 
 class Product(BaseModel):
@@ -59,9 +34,11 @@ class ProductManager:
     def __init__(self):
         """Initialize ProductManager with SQLite database"""
         
-        # Определяем путь к базе данных относительно корня проекта
+        # Определяем путь к базе данных
+        # В Docker: /app/data/products.db
+        # Локально: project_root/data/products.db
         project_root = Path(__file__).parent.parent.parent
-        db_path = project_root / "app" / "db" / "products.db"
+        db_path = project_root / "data" / "products.db"
         self.db = Database(str(db_path))
 
     def get_all_products(self):

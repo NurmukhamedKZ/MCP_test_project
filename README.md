@@ -20,9 +20,11 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 ### 2. Запустите приложение:
 
+**С Docker Compose:**
 ```bash
 docker-compose up --build
 ```
+
 
 Приложение будет доступно по адресу: http://localhost:8000
 
@@ -30,6 +32,9 @@ docker-compose up --build
 
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
+
+
+
 
 ## Локальная разработка (без Docker)
 
@@ -78,7 +83,6 @@ curl -X POST "http://localhost:8000/ask_agent?prompt=покажи статист
 ```
 .
 ├── app/
-│   ├── api/v1/agent/        # API endpoints
 │   ├── db/
 │   │   └── database.py      # SQLite database manager
 │   ├── service/
@@ -96,7 +100,12 @@ curl -X POST "http://localhost:8000/ask_agent?prompt=покажи статист
 
 ## База данных
 
-База данных SQLite автоматически создается при первом запуске в папке `data/` (при использовании Docker) или `app/db/` (при локальном запуске).
+База данных SQLite автоматически создается при первом запуске в папке `data/products.db`.
+
+**Важно:**
+- Класс `Database` находится в `app/db/database.py`
+- MCP сервер импортирует его через `PYTHONPATH=/app`
+- База данных монтируется как volume и сохраняется между перезапусками контейнера
 
 ### Схема таблицы `products`:
 
@@ -107,19 +116,3 @@ curl -X POST "http://localhost:8000/ask_agent?prompt=покажи статист
 | price     | REAL    | Цена                         |
 | category  | TEXT    | Категория                    |
 | in_stock  | INTEGER | В наличии (1/0)              |
-
-## Остановка приложения
-
-```bash
-docker-compose down
-```
-
-## Удаление данных
-
-```bash
-# Удалить базу данных
-rm -rf data/
-
-# Удалить все (включая Docker образы)
-docker-compose down --volumes --rmi all
-```
